@@ -15,6 +15,13 @@
       "when": 1716803457089,
       "tag": "0001_freezing_black_queen",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1716918111131,
+      "tag": "0002_serious_vindicator",
+      "breakpoints": true
     }
   ]
 }

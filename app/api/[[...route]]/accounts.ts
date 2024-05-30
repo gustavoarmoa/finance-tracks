@@ -48,11 +48,10 @@ const app = new Hono()
                 id: createId(),
                 userId: auth.userId,
                 ...values,
-            }).returning({
-
-            })
+            }).returning();
 
             return c.json({ data });
     });
+    
 
 export default app;
