@@ -15,6 +15,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
+import { useConfirm } from "@/hooks/use-confirm"
 import { Button } from "./ui/button"
 import { Input } from "@/components/ui/input"
 
@@ -42,6 +43,11 @@ export function DataTable<TData, TValue>({
   onDelete,
   disabled,
 }: DataTableProps<TData, TValue>) {
+  const [ConfirmDialog, confirm] = useConfirm(
+    "Estás seguro ?",
+    "Vas a eleminar una cuenta"
+  )
+
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -67,6 +73,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div>
+      <ConfirmDialog />
       <div className="flex items-center py-4">
         <Input
           placeholder={`Filter for ${filterKey}...`}
@@ -82,6 +89,14 @@ export function DataTable<TData, TValue>({
             size="sm"
             variant={"outline"}
             className="ml-auto font-normal text-x"
+            onClick={async () => {
+              const ok = await confirm();
+              if(ok) {
+                // Components Dialog confirm
+                onDelete(table.getFilteredSelectedRowModel().rows)
+                table.resetRowSelection();
+              }
+            }}
           >
             <Trash className="size-4 mr-2"/>
             Eliminar ({table.getFilteredSelectedRowModel().rows.length})
