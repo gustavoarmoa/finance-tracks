@@ -28,7 +28,7 @@ export const EditAccountSheet = () => {
     // Question confirmation to user
     const [ConfirmDialog, confirm] = useConfirm(
         "Estás seguro?",
-        "Vas a eliminar esta cuent ?"
+        "Vas a eliminar esta cuenta ?"
     )
 
     // Fetching account

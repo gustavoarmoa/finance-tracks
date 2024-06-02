@@ -1,6 +1,6 @@
 "use client";
 
-import { useOpenAccount } from "@/features/accounts/hooks/use-open-account";
+import { useOpenCategory } from "@/features/categories/hooks/use-open-category";
 import { useConfirm } from "@/hooks/use-confirm";
 
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu"
-import { useDeleteAccount } from "@/features/accounts/api/use-delete-account";
+import { useDeleteCategory } from "@/features/categories/api/use-delete-category";
 
 type Props = {
     id: string;
@@ -20,10 +20,10 @@ type Props = {
 export const Actions = ({id}: Props) => {
     const [ConfirmDialog, confirm] = useConfirm(
         "Esta seguro?",
-        "Si continuas vas a eliminar"
+        "Si continuas vas a eliminar categoria"
     )
-    const deleteMutation = useDeleteAccount(id);
-    const { onOpen } = useOpenAccount();
+    const deleteMutation = useDeleteCategory(id);
+    const { onOpen } = useOpenCategory();
 
     // HandleDelete
     const handleDelete = async () => {
