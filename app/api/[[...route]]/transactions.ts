@@ -17,63 +17,58 @@ import {
 } from "@/db/schema";
 
 const app = new Hono()
-    .get(
-        "/", 
-        zValidator("query", z.object({
-            from: z.string().optional(),
-            to: z.string().optional(),
-            accountId: z.string().optional(),
-        })),
-        clerkMiddleware(),
-        async (c) => {
-            const auth = getAuth(c);
+.get(
+    "/",
+    zValidator("query", z.object({
+      from: z.string().optional(),
+      to: z.string().optional(),
+      accountId: z.string().optional(),
+    })),
+    clerkMiddleware(),
+    async (c) => {
+      const auth = getAuth(c);
+      const { from, to, accountId } = c.req.valid("query");
 
-            // validate query from gets
-            const { from, to, accountId} = c.req.valid("query");
+      if (!auth?.userId) {
+        return c.json({ error: "Unauthorized" }, 401);
+      }
 
-            // verifing if we are authenticated
-            if(!auth?.userId) {
-                 return c.json({ error: "Unauthorized"}, 401);
-            }
+      const defaultTo = new Date();
+      const defaultFrom = subDays(defaultTo, 30);
 
-            // if not pass data we are display the last 30 days
-            const defaultTo = new Date();
-            const defaultFrom = subDays(defaultTo, 30);
+      const startDate = from 
+        ? parse(from, "yyyy-MM-dd", new Date())
+        : defaultFrom;
+      const endDate = to
+        ? parse(to, "yyyy-MM-dd", new Date())
+        : defaultTo;
 
-            const startDate = from 
-                ? parse(from, "yyyy-MM-DD", new Date())
-                : defaultFrom;
+      const data = await db
+        .select({
+          id: transactions.id,
+          date: transactions.date,
+          category: categories.name,
+          categoryId: transactions.categoryId,
+          payee: transactions.payee,
+          amount: transactions.amount,
+          notes: transactions.notes,
+          account: accounts.name,
+          accountId: transactions.accountId,
+        })
+        .from(transactions)
+        .innerJoin(accounts, eq(transactions.accountId, accounts.id))
+        .leftJoin(categories, eq(transactions.categoryId, categories.id))
+        .where(
+          and(
+            accountId ? eq(transactions.accountId, accountId) : undefined,
+            eq(accounts.userId, auth.userId),
+            gte(transactions.date, startDate),
+            lte(transactions.date, endDate),
+          )
+        )
+        .orderBy(desc(transactions.date));
 
-            const endDate = to
-                ? parse(to, "yyyy-MM-DD", new Date())
-                : defaultTo;
-
-            const data = await db
-                .select({
-                    id: transactions.id,
-                    date: transactions.date,
-                    category: categories.name,
-                    categoryId: transactions.categoryId,
-                    payee: transactions.payee,
-                    amount: transactions.amount,
-                    notes: transactions.notes,
-                    account: accounts.name,
-                    accountId: transactions.accountId,
-                })
-                .from(transactions)
-                .innerJoin(accounts, eq(transactions.accountId, accounts.id))
-                .leftJoin(categories, eq(transactions.categoryId, categories.id))
-                .where(
-                    and(
-                        accountId ? eq(transactions.accountId, accountId) : undefined,
-                        eq(accounts.userId, auth.userId),
-                        gte(transactions.date, startDate),
-                        lte(transactions.date, endDate),
-                    )
-                )
-                .orderBy(desc(transactions.date));
-
-            return c.json({ data });
+      return c.json({ data });
     })
     .get(
         "/:id",

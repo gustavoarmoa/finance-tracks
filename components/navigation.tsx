@@ -20,11 +20,11 @@ const routes = [
     },
     {
         href: "/transactions",
-        label: "Transactions",
+        label: "Transacciones",
     },
     {
         href: "/accounts",
-        label: "Accounts",
+        label: "Cuentas",
     },
     {
         href: "/categories",
@@ -32,7 +32,7 @@ const routes = [
     },
     {
         href: "/settings",
-        label: "Configurações",
+        label: "Configuraciones",
     },
 ]
 
