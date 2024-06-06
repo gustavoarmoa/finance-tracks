@@ -8,27 +8,26 @@ type ResponseType = InferResponseType<typeof client.api.transactions["bulk-delet
 type RequestType = InferRequestType<typeof client.api.transactions["bulk-delete"]["$post"]>["json"];
 
 export const useBulkDeleteTransactions = () => {
-    const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
-    const mutation = useMutation<
-        ResponseType,
-        Error,
-        RequestType
-    >({
-        mutationFn: async (json) =>  {
-            const response = await client.api.transactions["bulk-delete"]["$post"]({ json });
-            return await response.json();
-        },
-        onSuccess: () => {
-            toast.success("Transactions deletada!");
-            queryClient.invalidateQueries({ queryKey: ["transactions"] });
-            // TODO: Also invalidate summary
-        },
-        onError: () => { 
-            toast.error("Falha al deletar Transactions!");
-        },
-    });
+  const mutation = useMutation<
+    ResponseType,
+    Error,
+    RequestType
+  >({
+    mutationFn: async (json) => {
+      const response = await client.api.transactions["bulk-delete"]["$post"]({ json });
+      return await response.json();
+    },
+    onSuccess: () => {
+      toast.success("Transactions deleted");
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      queryClient.invalidateQueries({ queryKey: ["summary"] });
+    },
+    onError: () => {
+      toast.error("Failed to delete transactions");
+    },
+  });
 
-    return mutation;
+  return mutation;
 };
-
